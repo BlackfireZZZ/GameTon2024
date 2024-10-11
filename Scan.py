@@ -109,7 +109,7 @@ class Enemy:
 
 
 class Transport:
-    def __init__(self, id: str, health: int, status: str, velocity: Velocity, x: float, y: float, anomaly_acceleration: Velocity, self_acceleration: Velocity, shield_left_ms: int, attack_cooldown_ms: int, death_count: int):
+    def __init__(self, id: str, health: int, status: str, velocity: Velocity, x: float, y: float, anomaly_acceleration: Velocity, self_acceleration: Velocity, shield_left_ms: int, attack_cooldown_ms: int, death_count: int, shield_cooldown_ms: int, shield_time_ms: int):
         self.id = id
         self.health = health
         self.status = status
@@ -121,6 +121,8 @@ class Transport:
         self.shield_left_ms = shield_left_ms
         self.attack_cooldown_ms = attack_cooldown_ms
         self.death_count = death_count
+        self.shield_cooldown_ms = shield_cooldown_ms
+        self.shield_time_ms = shield_time_ms
 
     @classmethod
     def from_dict(cls, data):
@@ -138,12 +140,14 @@ class Transport:
             self_acceleration=self_acceleration,
             shield_left_ms=data['shieldLeftMs'],
             attack_cooldown_ms=data['attackCooldownMs'],
-            death_count=data['deathCount']
+            death_count=data['deathCount'],
+            shield_cooldown_ms=data['shieldCooldownMs'],
+
         )
 
 
 class Response:
-    def __init__(self, attack_cooldown_ms: int, attack_damage: int, attack_explosion_radius: int, attack_range: int, map_size: Velocity, max_accel: float, max_speed: float, name: str, points: int, revive_timeout_sec: int, shield_cooldown_ms: int, shield_time_ms: int, transport_radius: float):
+    def __init__(self, attack_cooldown_ms: int, attack_damage: int, attack_explosion_radius: int, attack_range: int, map_size: Velocity, max_accel: float, max_speed: float, name: str, points: int, revive_timeout_sec: int, transport_radius: float, shield_cooldown_ms: int):
         self.anomalies = []
         self.bounties = []
         self.enemies = []
@@ -159,9 +163,8 @@ class Response:
         self.name = name
         self.points = points
         self.revive_timeout_sec = revive_timeout_sec
-        self.shield_cooldown_ms = shield_cooldown_ms
-        self.shield_time_ms = shield_time_ms
         self.transport_radius = transport_radius
+        self.shield_cooldown_ms = shield_cooldown_ms
 
     def predict_next(self) -> 'Response':
         new_response = copy(self)
@@ -238,9 +241,8 @@ class Response:
             name=data['name'],
             points=data['points'],
             revive_timeout_sec=data['reviveTimeoutSec'],
-            shield_cooldown_ms=data['shieldCooldownMs'],
+            transport_radius=data['transportRadius'],
             shield_time_ms=data['shieldTimeMs'],
-            transport_radius=data['transportRadius']
         )
 
         # Добавление аномалий
@@ -277,16 +279,99 @@ class Game:
     def __init__(self):
         self.response: Optional[Response] = None
         self.operations: List[Action] = []
-        while True:
-            self.move()
-            sleep(0.4)
 
     def new_request(self):
-        data = [x.to_dict() for x in self.operations]
-        data = {
-            "transports": data
-        }
-        self.response = Response.from_dict(requests.post(Config.url, json=data).json())
+        self.response = Response.from_dict({
+  "anomalies": [
+    {
+      "effectiveRadius": 0,
+      "id": "string",
+      "radius": 0,
+      "strength": 0,
+      "velocity": {
+        "x": 1.2,
+        "y": 1.2
+      },
+      "x": 1,
+      "y": 1
+    }
+  ],
+  "attackCooldownMs": 1000,
+  "attackDamage": 10,
+  "attackExplosionRadius": 10,
+  "attackRange": 10,
+  "bounties": [],
+  "enemies": [
+    {
+      "health": 100,
+      "killBounty": 10,
+      "shieldLeftMs": 5000,
+      "status": "alive",
+      "velocity": {
+        "x": 1.2,
+        "y": 1.2
+      },
+      "x": 1,
+      "y": 1
+    }
+  ],
+  "mapSize": {
+    "x": 1,
+    "y": 1
+  },
+  "maxAccel": 1,
+  "maxSpeed": 10,
+  "name": "player1",
+  "points": 100,
+  "reviveTimeoutSec": 2,
+  "shieldCooldownMs": 10000,
+  "shieldTimeMs": 5000,
+  "transportRadius": 5,
+  "transports": [
+    {
+      "anomalyAcceleration": {
+        "x": 1.2,
+        "y": 1.2
+      },
+      "attackCooldownMs": 0,
+      "deathCount": 0,
+      "health": 100,
+      "id": "00000000-0000-0000-0000-000000000000",
+      "selfAcceleration": {
+        "x": 1.2,
+        "y": 1.2
+      },
+      "shieldCooldownMs": 0,
+      "shieldLeftMs": 0,
+      "status": "alive",
+      "velocity": {
+        "x": 1.2,
+        "y": 1.2
+      },
+      "x": 1,
+      "y": 1
+    }
+  ],
+  "wantedList": [
+    {
+      "health": 100,
+      "killBounty": 10,
+      "shieldLeftMs": 5000,
+      "status": "alive",
+      "velocity": {
+        "x": 1.2,
+        "y": 1.2
+      },
+      "x": 1,
+      "y": 1
+    }
+  ]
+})
+        # data = [x.to_dict() for x in self.operations]
+        # data = {
+        #     "transports": data
+        # }
+        # self.response = Response.from_dict(requests.post(Config.url, json=data, headers={'X-Auth-Token': Config.Token}).json())
 
     def move(self):
         self.new_request()

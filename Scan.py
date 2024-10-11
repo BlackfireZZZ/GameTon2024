@@ -2,6 +2,7 @@ import json
 from time import sleep
 from tkinter.constants import ACTIVE
 from typing import Optional, List
+from math import sqrt
 
 from config import Config
 import requests
@@ -41,6 +42,16 @@ class Target:
         self.shieldLeftMs = 0
         self.velocity = [0, 0]
 
+class Bounty:
+    def __init__(self, x, y, points, radius):
+        self.points = points  
+        self.radius = radius
+        self.x = x
+        self.y = y
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(x=data['x'], y=data['y'], points=data['points'], radius=['radius'])
 
 class Velocity:
     def __init__(self, x: float, y: float):
@@ -243,6 +254,10 @@ class Response:
             transport_radius=data['transportRadius']
         )
 
+        # добавление монеток
+        for bounty_data in data['bounties']:
+            response.bounties.append(Bounty.from_dict(bounty_data))
+
         # Добавление аномалий
         for anomaly_data in data['anomalies']:
             response.anomalies.append(Anomaly.from_dict(anomaly_data))
@@ -260,6 +275,24 @@ class Response:
             response.wanted_list.append(Enemy.from_dict(wanted_data))
 
         return response
+    
+    def get_move(self, carpet: Transport):
+        # ищем ближайшую монетку
+        min_dist = 999999
+        min_bounty = None
+        for bounty in self.bounties:
+            dist = sqrt((bounty.x - carpet.x) ** 2 + (bounty.y - carpet.y) ** 2) # модуль вектора расстояния
+            if dist <= min_dist:
+                min_dist = dist
+                min_bounty = bounty
+
+        k = (bounty.y - carpet.y) / (bounty.x - carpet.x)
+        b = carpet.y - (k * carpet.x)
+        for anomaly in self.anomalies:
+            
+
+        
+        movement_vector = [self.x - self.coords[0], self.y - self.coords[1]]
 
     def get_actions(self):
         actions: List[Action] = []

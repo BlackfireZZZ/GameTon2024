@@ -3,6 +3,7 @@ from time import sleep
 
 from config import Config
 import requests
+from copy import copy
 
 
 class Action(object):
@@ -141,6 +142,67 @@ class Response:
         self.shield_cooldown_ms = shield_cooldown_ms
         self.shield_time_ms = shield_time_ms
         self.transport_radius = transport_radius
+
+    def predict_next(self):
+        new_response = copy(self)
+
+        for anomaly in new_response.anomalies:
+            anomaly.x += anomaly.velocity.x
+            anomaly.y += anomaly.velocity.y
+
+        for enemy in new_response.enemies:
+            enemy.x += enemy.velocity.x
+            enemy.y += enemy.velocity.y
+            if enemy.shield_left_ms >= 400:
+                enemy.shield_left_ms -= 400
+            else:
+                enemy.shield_left_ms = 0
+            
+
+        for transport in new_response.transports:
+            if transport.attack_cooldown_ms >= 400:
+                transport.attack_cooldown_ms -= 400
+            else:
+                transport.attack_cooldown_ms = 0
+
+            if transport.shield_cooldown_ms >= 400:
+                transport.shield_cooldown_ms -= 400
+            else:
+                transport.shield_cooldown_ms = 0
+        
+            if transport.shield_left_ms >= 400:
+                transport.shield_left_ms -= 400
+            else:
+                transport.shield_left_ms = 0
+
+            transport.x += transport.velocity.x + transport.anomaly_acceleration.x
+            transport.y += transport.velocity.y + transport.anomaly_acceleration.y
+
+        for wanted in new_response.wanted_list:
+            wanted.x += wanted.velocity.x
+            wanted.y += wanted.velocity.y
+            if wanted.shield_left_ms >= 400:
+                wanted.shield_left_ms -= 400
+            else:
+                wanted.shield_left_ms = 0
+ 
+        if new_response.attack_cooldown_ms >= 400:
+            new_response.attack_cooldown_ms -= 400
+        else:
+            new_response.attack_cooldown_ms = 0
+ 
+        if new_response.shield_cooldown_ms >= 400:
+            new_response.shield_cooldown_ms -= 400
+        else:
+            new_response.shield_cooldown_ms = 0
+ 
+        if new_response.shield_time_ms >= 400:
+            new_response.shield_time_ms -= 400
+        else:
+            new_response.shield_time_ms = 0 
+
+        return new_response 
+
 
     @classmethod
     def from_dict(cls, data):

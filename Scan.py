@@ -9,7 +9,7 @@ from copy import copy
 
 
 class Action:
-    def __init__(self, acceleration: list, activateShield: bool, attack: list, id: str):
+    def __init__(self, id: str, acceleration: list[float] = None, activateShield: bool = None, attack: list[int] = None, ):
         self.acceleration = acceleration
         self.activateShield = activateShield
         self.attack = attack
@@ -17,19 +17,20 @@ class Action:
 
     def to_dict(self):
         result = {
-            "acceleration":
-                {
-                    "x": self.acceleration[0],
-                    "y": self.acceleration[1]
-                },
-            "activateShield": self.activateShield,
-            "attack":
-                {
-                    "x": self.attack[0],
-                    "y": self.attack[1]
-                },
             "id": self.id
         }
+        if self.acceleration is not None:
+            result["acceleration"] = {
+                "x": self.acceleration[0],
+                "y": self.acceleration[1]
+            }
+        if self.activateShield is not None:
+            result["activateShield"] = self.activateShield
+        if self.attack is not None:
+            result["attack"] = {
+                "x": self.attack[0],
+                "y": self.attack[1]
+            }
         return json.dumps(result)
 
 
@@ -161,7 +162,6 @@ class Response:
         self.shield_cooldown_ms = shield_cooldown_ms
         self.shield_time_ms = shield_time_ms
         self.transport_radius = transport_radius
-        self.action: Optional[Action] = None
 
     def predict_next(self) -> 'Response':
         new_response = copy(self)
@@ -262,8 +262,15 @@ class Response:
         return response
 
     def get_actions(self):
-
-        return [x.action.to_dict() for x in self.transports]
+        actions: List[Action] = []
+        for transport in self.transports:
+            acceleration = [1, 0]
+            activateShield = False
+            #ОСТУТСТВУЕТ ЛОГИКА
+            if transport.shield_cooldown_ms == 0:
+                activateShield = True
+            actions.append(Action(transport.id, acceleration, activateShield))
+        return actions
 
 
 class Game:

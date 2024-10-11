@@ -1,5 +1,6 @@
 import json
 from math import sqrt
+from typing import List
 
 class Action(object):
     def __init__(self, id: str):
@@ -18,7 +19,7 @@ class Target(object):
 
 
 class Carpet(object):
-    targets = []
+    targets: List[Target] = []
 
     def __init__(self, id: str):
         self.coords = [0, 0]
@@ -51,6 +52,7 @@ class Carpet(object):
         return json.dumps(result)
 
     def scan(self):
+        # Главная логика здесь
         pass
 
     def move(self, x: int, y: int):

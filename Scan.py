@@ -1,5 +1,6 @@
 import json
-import config
+from Config import Config
+import requests
 
 
 class Velocity:
@@ -159,4 +160,8 @@ class Scanner(object):
         self.response = None
 
     def get_response(self):
+        request = requests.get(Config.url)
+        self.response = Response.from_dict(request.json())
+
+    def choose_enemy(self):
         pass

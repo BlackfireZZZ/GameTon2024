@@ -1,19 +1,37 @@
 import json
 from time import sleep
+from tkinter.constants import ACTIVE
 
 from config import Config
 import requests
 
 
-class Action(object):
-    def __init__(self, id: str):
-        self.acceleration = [0, 0]
-        self.activateShield = False
-        self.attack = [0, 0]
+class Action:
+    def __init__(self, acceleration: list, activateShield: bool, attack: list, id: str):
+        self.acceleration = acceleration
+        self.activateShield = activateShield
+        self.attack = attack
         self.id = id
 
+    def to_dict(self):
+        result = {
+            "acceleration":
+                {
+                    "x": self.acceleration[0],
+                    "y": self.acceleration[1]
+                },
+            "activateShield": self.activateShield,
+            "attack":
+                {
+                    "x": self.attack[0],
+                    "y": self.attack[1]
+                },
+            "id": self.id
+        }
+        return json.dumps(result)
 
-class Target(object):
+
+class Target:
     def __init__(self, carp_x, carp_y):
         self.coordinates = [carp_x, carp_y]  #координаты ковра (нашего)
         self.health = 0
@@ -31,7 +49,7 @@ class Velocity:
         return cls(x=data['x'], y=data['y'])
 
 
-class Action(object):
+class Action:
     def __init__(self, id: str):
         self.acceleration = [0, 0]
         self.activateShield = False
@@ -121,6 +139,7 @@ class Transport:
         )
 
 
+
 class Response:
     def __init__(self, attack_cooldown_ms: int, attack_damage: int, attack_explosion_radius: int, attack_range: int, map_size: Velocity, max_accel: float, max_speed: float, name: str, points: int, revive_timeout_sec: int, shield_cooldown_ms: int, shield_time_ms: int, transport_radius: float):
         self.anomalies = []
@@ -141,7 +160,7 @@ class Response:
         self.shield_cooldown_ms = shield_cooldown_ms
         self.shield_time_ms = shield_time_ms
         self.transport_radius = transport_radius
-
+        self.action = Action()
     @classmethod
     def from_dict(cls, data):
         # Создание основного объекта response
@@ -180,6 +199,8 @@ class Response:
 
         return response
 
+    def get_actions(self):
+        return [x.action.to_dict() for x in self.transports]
 
 class Game:
     def __init__(self):
@@ -191,6 +212,9 @@ class Game:
 
     def new_request(self):
         data = [x.to_json() for x in self.operations]
+        data = {
+            "transports": data
+        }
         self.response = requests.post(Config.url, json=data)
 
     def move(self):

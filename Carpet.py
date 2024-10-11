@@ -2,11 +2,10 @@ import json
 
 
 class Action(object):
-    acceleration = [0, 0]
-    activateShield = False
-    attack = [0, 0]
-
     def __init__(self, id: str):
+        self.acceleration = [0, 0]
+        self.activateShield = False
+        self.attack = [0, 0]
         self.id = id
 
 

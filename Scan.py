@@ -1,8 +1,24 @@
 import json
 from time import sleep
 
-from Config import Config
+from config import Config
 import requests
+
+
+class Action(object):
+    def __init__(self, id: str):
+        self.acceleration = [0, 0]
+        self.activateShield = False
+        self.attack = [0, 0]
+        self.id = id
+
+
+class Target(object):
+    def __init__(self, carp_x, carp_y):
+        self.coordinates = [carp_x, carp_y]  #координаты ковра (нашего)
+        self.health = 0
+        self.shieldLeftMs = 0
+        self.velocity = [0, 0]
 
 
 class Velocity:
@@ -13,6 +29,14 @@ class Velocity:
     @classmethod
     def from_dict(cls, data):
         return cls(x=data['x'], y=data['y'])
+
+
+class Action(object):
+    def __init__(self, id: str):
+        self.acceleration = [0, 0]
+        self.activateShield = False
+        self.attack = [0, 0]
+        self.id = id
 
 
 class Anomaly:
@@ -164,10 +188,10 @@ class Game:
         while True:
             self.move()
             sleep(0.4)
+
     def new_request(self):
         data = [x.to_json() for x in self.operations]
         self.response = requests.post(Config.url, json=data)
-
 
     def move(self):
         self.new_request()

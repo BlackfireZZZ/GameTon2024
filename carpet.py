@@ -2,6 +2,7 @@ import json
 from math import sqrt
 from typing import List
 
+
 class Action(object):
     def __init__(self, id: str):
         self.acceleration = [0, 0]

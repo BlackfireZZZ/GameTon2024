@@ -262,6 +262,7 @@ class Response:
         return response
 
     def get_actions(self):
+
         return [x.action.to_dict() for x in self.transports]
 
 
@@ -283,4 +284,6 @@ class Game:
     def move(self):
         self.new_request()
         predicted_response = self.response.predict_next()
+        self.operations = predicted_response.get_actions()
+
 

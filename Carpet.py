@@ -1,5 +1,6 @@
 import json
 
+
 class Action(object):
     acceleration = [0, 0]
     activateShield = False
@@ -15,9 +16,21 @@ class Carpet(object):
         self.action = Action(id)
 
     def action_to_dict(self):
-        return
-
-
+        result = {
+            "acceleration":
+                {
+                "x": self.action.acceleration[0],
+                "y": self.action.acceleration[1]
+                },
+            "activateShield": self.action.activateShield,
+            "attack":
+                {
+                "x": self.action.attack[0],
+                "y": self.action.attack[1]
+                },
+            "id": self.id
+        }
+        return json.dumps(result)
 
     def shoot(self, x: int, y: int, velocity_x: int, velocity_y: int):
         pass

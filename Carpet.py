@@ -69,8 +69,3 @@ class Carpet(object):
         k = 10 / movement_len  #кэф масштабирования ускорения
         acc_vector = [movement_vector[0] * k, movement_vector[1] * k]  #вектор который пройдем за тик/секунду
         self.acceleration = acc_vector
-        
-
-
-
-

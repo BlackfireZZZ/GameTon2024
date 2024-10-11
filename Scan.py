@@ -1,4 +1,6 @@
 import json
+from time import sleep
+
 from Config import Config
 import requests
 
@@ -155,17 +157,19 @@ class Response:
         return response
 
 
-class Scanner(object):
+class Game:
     def __init__(self):
-        self.response = None
+        self.response = []
+        self.operations = []
+        while True:
+            self.move()
+            sleep(0.4)
+    def new_request(self):
+        data = [x.to_json() for x in self.operations]
+        self.response = requests.post(Config.url, json=data)
 
-    def get_response(self):
-        request = requests.get(Config.url)
-        self.response = Response.from_dict(request.json())
 
-    def choose_enemy(self):
-        pass
-
-
-def future_coords(x: int, y: int, velo_x: int, velo_y: int): #возвращает какие будут координаты через 0.4
-    return [x + velo_x * 0.4, y + velo_y * 0.4]
+    def move(self):
+        self.new_request()
+        predicted_response = self.response.predict_next()
+        self.operations = predicted_response.operations()

@@ -168,4 +168,4 @@ class Scanner(object):
 
 
 def future_coords(x: int, y: int, velo_x: int, velo_y: int): #возвращает какие будут координаты через 0.4
-    return [x + velo_x, y + velo_y * 0.4]
+    return [x + velo_x * 0.4, y + velo_y * 0.4]

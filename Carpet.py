@@ -14,6 +14,7 @@ class Carpet(object):
     def __init__(self, id: str):
         self.id = id
         self.action = Action(id)
+        self.acceleration = [0, 0]
 
     def action_to_dict(self):
         result = {

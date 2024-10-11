@@ -278,7 +278,7 @@ class Game:
         data = {
             "transports": data
         }
-        self.response = requests.post(Config.url, json=data)
+        self.response = Response.from_dict(requests.post(Config.url, json=data))
 
     def move(self):
         self.new_request()

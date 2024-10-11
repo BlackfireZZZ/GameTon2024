@@ -1,4 +1,6 @@
 import json
+import config
+
 
 class Velocity:
     def __init__(self, x: float, y: float):
@@ -152,3 +154,9 @@ class Response:
         return response
 
 
+class Scanner(object):
+    def __init__(self):
+        self.response = None
+
+    def get_response(self):
+        pass

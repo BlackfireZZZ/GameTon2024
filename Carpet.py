@@ -10,18 +10,16 @@ class Action(object):
 
 
 class Target(object):
-    coordinates = [0, 0]
-    health = 0
-    shieldLeftMs = 0
-    velocity = [0, 0]
-
-
-class Flot(object):
-    Carpets = []
-    Targets = []
+    def __init__(self):
+        self.coordinates = [0, 0]
+        self.health = 0
+        self.shieldLeftMs = 0
+        self.velocity = [0, 0]
 
 
 class Carpet(object):
+    targets = []
+
     def __init__(self, id: str):
         self.id = id
         self.action = Action(id)

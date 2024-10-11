@@ -1,6 +1,6 @@
 import json
+from math import sqrt
 from typing import List
-
 
 class Action(object):
     def __init__(self, id: str):
@@ -11,8 +11,8 @@ class Action(object):
 
 
 class Target(object):
-    def __init__(self):
-        self.coordinates = [0, 0]
+    def __init__(self, carp_x, carp_y):
+        self.coordinates = [carp_x, carp_y]  #координаты ковра (нашего)
         self.health = 0
         self.shieldLeftMs = 0
         self.velocity = [0, 0]
@@ -22,6 +22,7 @@ class Carpet(object):
     targets: List[Target] = []
 
     def __init__(self, id: str):
+        self.coords = [0, 0]
         self.id = id
         self.action = Action(id)
         self.shoot_cd = 0
@@ -55,7 +56,20 @@ class Carpet(object):
         pass
 
     def move(self, x: int, y: int):
-        pass
+        now = self.coords
+        want = [x, y]
+        movement_vector = [want[0] - now[0], want[1] - now[1]] #вектор передвижения
+        movement_len = sqrt(movement_vector[0] ** 2 + movement_vector[1] ** 2) 
+        if movement_len <= 10:  #если нам пора замедляться то отрицательное ускорение
+            self.acceleration = -1 * movement_len
+            return
+        elif movement_len == 0:   #если мы на месте то ускорение 0
+            self.acceleration = 0
+            return
+        k = 10 / movement_len  #кэф масштабирования ускорения
+        acc_vector = [movement_vector[0] * k, movement_vector[1] * k]  #вектор который пройдем за тик/секунду
+        self.acceleration = acc_vector
+        
 
 
 

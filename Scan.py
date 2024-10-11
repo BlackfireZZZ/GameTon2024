@@ -1,6 +1,7 @@
 import json
 from time import sleep
 from tkinter.constants import ACTIVE
+from typing import Optional, List
 
 from config import Config
 import requests
@@ -140,7 +141,6 @@ class Transport:
         )
 
 
-
 class Response:
     def __init__(self, attack_cooldown_ms: int, attack_damage: int, attack_explosion_radius: int, attack_range: int, map_size: Velocity, max_accel: float, max_speed: float, name: str, points: int, revive_timeout_sec: int, shield_cooldown_ms: int, shield_time_ms: int, transport_radius: float):
         self.anomalies = []
@@ -161,9 +161,9 @@ class Response:
         self.shield_cooldown_ms = shield_cooldown_ms
         self.shield_time_ms = shield_time_ms
         self.transport_radius = transport_radius
-        self.action = Action()
+        self.action: Optional[Action] = None
 
-    def predict_next(self):
+    def predict_next(self) -> 'Response':
         new_response = copy(self)
 
         for anomaly in new_response.anomalies:
@@ -205,7 +205,7 @@ class Response:
                 wanted.shield_left_ms -= 400
             else:
                 wanted.shield_left_ms = 0
- 
+
         if new_response.attack_cooldown_ms >= 400:
             new_response.attack_cooldown_ms -= 400
         else:
@@ -222,7 +222,6 @@ class Response:
             new_response.shield_time_ms = 0 
 
         return new_response 
-
 
     @classmethod
     def from_dict(cls, data):
@@ -265,22 +264,23 @@ class Response:
     def get_actions(self):
         return [x.action.to_dict() for x in self.transports]
 
+
 class Game:
     def __init__(self):
-        self.response = []
-        self.operations = []
+        self.response: Optional[Response] = None
+        self.operations: List[Action] = []
         while True:
             self.move()
             sleep(0.4)
 
     def new_request(self):
-        data = [x.to_json() for x in self.operations]
+        data = [x.to_dict() for x in self.operations]
         data = {
             "transports": data
         }
-        self.response = Response.from_dict(requests.post(Config.url, json=data))
+        self.response = Response.from_dict(requests.post(Config.url, json=data).json())
 
     def move(self):
         self.new_request()
         predicted_response = self.response.predict_next()
-        self.operations = predicted_response.operations()
+

@@ -2,15 +2,14 @@ from flask import Flask, jsonify
 import threading
 import time
 
+from Scan import Game
+
 app = Flask(__name__)
 
 
 # Функция для фонового выполнения
 def background_task():
-    while True:
-        # Здесь выполняются ваши операции
-        print("Background task is running...")
-        time.sleep(5)  # Задержка для имитации работы
+    Game()
 
 
 # Flask маршрут для обработки запросов

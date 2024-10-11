@@ -1,4 +1,5 @@
 import json
+from typing import List
 
 
 class Action(object):
@@ -18,7 +19,7 @@ class Target(object):
 
 
 class Carpet(object):
-    targets = []
+    targets: List[Target] = []
 
     def __init__(self, id: str):
         self.id = id
@@ -50,6 +51,7 @@ class Carpet(object):
         return json.dumps(result)
 
     def scan(self):
+        # Главная логика здесь
         pass
 
     def move(self, x: int, y: int):

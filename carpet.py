@@ -1,6 +1,7 @@
 import json
 from math import sqrt
 from typing import List
+from random import randint
 
 
 class Action(object):
@@ -29,11 +30,12 @@ class Carpet(object):
         self.shoot_cd = 0
         self.acceleration = [0, 0]
 
-    def shoot(self, enemy_x: int, enemy_y: int, velocity_x: int, velocity_y: int):
-        if self.shoot_cd == 0:
+    def shoot(self, enemy_x: int, enemy_y: int, velocity_x: int, velocity_y: int, enemy_is_shielded: bool):
+        if self.shoot_cd == 0 and enemy_is_shielded == False:
             self.action.attack = [enemy_x + (velocity_x * 0.3), enemy_y + (velocity_y * 0.3)]
         else:
-            pass
+            # рандомная координата
+            self.action.attack = [self.coords[0] + randint(50, 200), self.coords[1] + randint(50, 200)]
 
     def action_to_dict(self):
         result = {
